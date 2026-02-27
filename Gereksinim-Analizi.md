@@ -1,9 +1,14 @@
-# Gereksinim Analizi (Talantloop)
+# TalantLoop - Gereksinim Analizi
 
-Bu proje, kullanıcıların sahip oldukları yetkinlikler üzerinden birbirlerine destek olabildikleri ve "kredi" sistemiyle hizmet alışverişi yaptıkları bir platformun backend altyapısını kapsamaktadır. Sistemin temel işleyişi şu ana gereksinimler üzerine kurulmuştur:
+## Fonksiyonel Gereksinim Listesi
 
-1.  **Kullanıcı ve Güvenlik Yönetimi:** Sisteme dahil olmak isteyen kullanıcıların kayıt olabilmesi, güvenli bir şekilde giriş yaparak yetkilendirme (token) alabilmesi ve gerektiğinde profil bilgilerini güncelleyip hesaplarını silebilmesi temel önceliktir.
-2.  **İlan ve Hizmet Paylaşımı:** Kullanıcıların yeteneklerini sergileyebilecekleri ilanlar oluşturması (örneğin: "1 saatlik ders"), bu ilanların tüm kullanıcılar tarafından listelenebilmesi ve ilan sahibinin kendi ilanlarını yönetebilmesi (güncelleme/silme) sağlanmalıdır.
-3.  **Ekonomik Döngü (Kredi Sistemi):** Platform içerisindeki hizmet takasının gerçekleşmesi için kullanıcılar arasında kredi transferi yapılabilmelidir. Her işlem sonunda bakiyeler güncellenmeli ve kullanıcılar mevcut kredi durumlarını anlık olarak sorgulayabilmelidir.
-
-Bu analiz çerçevesinde hazırlanan REST API metotları, platformun hem sosyal hem de finansal modüllerinin birbiriyle uyumlu çalışmasını hedeflemektedir.
+1. **Kullanıcı Kayıt Ol (POST):** Yeni bir hesap oluşturma.
+2. **Kullanıcı Giriş Yap (POST):** Sisteme erişim yetkisi alma.
+3. **Profil Bilgilerini Güncelle (UPDATE):** Kullanıcı adı veya yetkinlik güncelleme.
+4. **Profilini Sil (DELETE):** Üyeliği sonlandırma.
+5. **Yeni İlan Oluştur (POST):** "1 saat ders verebilirim" ilanı açma.
+6. **İlanları Listele (GET):** Mevcut tüm ilanları ana sayfada görme.
+7. **İlan Güncelle (UPDATE):** Açılan ilanın açıklamasını değiştirme.
+8. **İlan Sil (DELETE):** Verilen ilanı sistemden kaldırma.
+9. **Kredi Transferi Yap (POST):** İşlem bittiğinde 1 krediyi birinden diğerine aktarma.
+10. **Bakiye Sorgula (GET):** Kullanıcının kaç kredisi kaldığını görüntüleme.
