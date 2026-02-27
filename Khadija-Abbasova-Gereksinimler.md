@@ -1,14 +1,9 @@
-# 🚀 Talantloop Proje Gereksinimleri
+# Gereksinim Analizi (Talantloop)
 
-| Fonksiyon | Metot | Açıklama |
-| :--- | :---: | :--- |
-| **Kullanıcı Kayıt Ol** | `POST` | Yeni bir hesap oluşturma. |
-| **Kullanıcı Giriş Yap** | `POST` | Sisteme erişim yetkisi alma. |
-| **Profil Bilgilerini Güncelle** | `UPDATE` | Kullanıcı adı veya yetkinlik güncelleme. |
-| **Profilini Sil** | `DELETE` | Üyeliği sonlandırma. |
-| **Yeni İlan Oluştur** | `POST` | "1 saat ders verebilirim" ilanı açma. |
-| **İlanları Listele** | `GET` | Mevcut tüm ilanları ana sayfada görme. |
-| **İlan Güncelle** | `UPDATE` | Açılan ilanın açıklamasını değiştirme. |
-| **İlan Sil** | `DELETE` | Verilen ilanı sistemden kaldırma. |
-| **Kredi Transferi Yap** | `POST` | İşlem bittiğinde 1 krediyi aktarma. |
-| **Bakiye Sorgula** | `GET` | Kullanıcının kalan kredisini görüntüleme. |
+Bu proje, kullanıcıların sahip oldukları yetkinlikler üzerinden birbirlerine destek olabildikleri ve "kredi" sistemiyle hizmet alışverişi yaptıkları bir platformun backend altyapısını kapsamaktadır. Sistemin temel işleyişi şu ana gereksinimler üzerine kurulmuştur:
+
+1.  **Kullanıcı ve Güvenlik Yönetimi:** Sisteme dahil olmak isteyen kullanıcıların kayıt olabilmesi, güvenli bir şekilde giriş yaparak yetkilendirme (token) alabilmesi ve gerektiğinde profil bilgilerini güncelleyip hesaplarını silebilmesi temel önceliktir.
+2.  **İlan ve Hizmet Paylaşımı:** Kullanıcıların yeteneklerini sergileyebilecekleri ilanlar oluşturması (örneğin: "1 saatlik ders"), bu ilanların tüm kullanıcılar tarafından listelenebilmesi ve ilan sahibinin kendi ilanlarını yönetebilmesi (güncelleme/silme) sağlanmalıdır.
+3.  **Ekonomik Döngü (Kredi Sistemi):** Platform içerisindeki hizmet takasının gerçekleşmesi için kullanıcılar arasında kredi transferi yapılabilmelidir. Her işlem sonunda bakiyeler güncellenmeli ve kullanıcılar mevcut kredi durumlarını anlık olarak sorgulayabilmelidir.
+
+Bu analiz çerçevesinde hazırlanan REST API metotları, platformun hem sosyal hem de finansal modüllerinin birbiriyle uyumlu çalışmasını hedeflemektedir.
