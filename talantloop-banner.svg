@@ -1,0 +1,43 @@
+<svg width="800" height="200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e94560"/>
+      <stop offset="100%" style="stop-color:#f5a623"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="200" fill="url(#bg)" rx="16"/>
+
+  <!-- Decorative circles -->
+  <circle cx="680" cy="40" r="60" fill="#e94560" opacity="0.08"/>
+  <circle cx="720" cy="160" r="40" fill="#f5a623" opacity="0.08"/>
+  <circle cx="100" cy="170" r="50" fill="#e94560" opacity="0.06"/>
+
+  <!-- Clock icon -->
+  <circle cx="72" cy="100" r="36" fill="none" stroke="url(#accent)" stroke-width="3"/>
+  <line x1="72" y1="100" x2="72" y2="72" stroke="#f5a623" stroke-width="3" stroke-linecap="round"/>
+  <line x1="72" y1="100" x2="90" y2="110" stroke="#e94560" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="72" cy="100" r="4" fill="white"/>
+
+  <!-- Loop arrow -->
+  <path d="M 118 80 Q 140 60 162 80" fill="none" stroke="url(#accent)" stroke-width="2.5" stroke-linecap="round"/>
+  <polygon points="162,72 162,88 174,80" fill="#f5a623"/>
+
+  <!-- TalantLoop text -->
+  <text x="195" y="115" font-family="Arial, sans-serif" font-size="52" font-weight="bold" fill="white" letter-spacing="-1">
+    Talant<tspan fill="url(#accent)">Loop</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="197" y="148" font-family="Arial, sans-serif" font-size="16" fill="#aaaacc" letter-spacing="2">
+    İnteraktif Yetenek Takas Platformu
+  </text>
+
+  <!-- Bottom accent line -->
+  <rect x="197" y="158" width="120" height="3" fill="url(#accent)" rx="2"/>
+</svg>
