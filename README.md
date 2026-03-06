@@ -41,5 +41,5 @@ Proje dokümantasyonuna aşağıdaki linklerden erişebilirsiniz:
 
 ## Proje Linkleri
 
-- **REST API Adresi:** api.talantloop.com
-- **Web Frontend Adresi:** frontend.talantloop.com
+- **REST API Adresi:** [api.talantloop.com](https://api.talantloop.com)
+- **Web Frontend Adresi:** [frontend.talantloop.com](https://frontend.talantloop.com)
