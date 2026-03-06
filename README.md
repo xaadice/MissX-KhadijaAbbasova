@@ -1,4 +1,4 @@
-![TalantLoop](TalentLoop.png)
+![TalantLoop](Product.png)
 # MissX-KhadijaAbbasova
 
 TalantLoop - İnteraktif bir yetenek takas arayüzü
