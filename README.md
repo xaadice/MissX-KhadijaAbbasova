@@ -1,3 +1,4 @@
+![TalantLoop](talantloop-banner.svg)
 # MissX-KhadijaAbbasova
 
 TalantLoop - İnteraktif bir yetenek takas arayüzü
