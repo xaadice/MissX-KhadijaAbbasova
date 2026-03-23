@@ -1,6 +1,6 @@
 # REST API Görev Dağılımı
 
-**REST API Adresi:** api.talantloop.com
+**REST API Adresi:** [api.talentloop.com](https://api.talentloop.com)
 
 Bu dokümanda, proje ekibindeki her üyenin geliştirmekten sorumlu olduğu REST API metotları listelenmektedir.
 
