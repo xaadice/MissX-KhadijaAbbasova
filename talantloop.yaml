@@ -1,0 +1,668 @@
+openapi: 3.0.3
+info:
+  title: TalantLoop API
+  description: |
+    TalantLoop platformu için RESTful API.
+
+    ## Özellikler
+    - Kullanıcı kayıt ve kimlik doğrulama
+    - Profil yönetimi
+    - İlan oluşturma ve yönetimi
+    - Zaman kredisi transferi
+    - Bakiye sorgulama
+  version: 1.0.0
+  contact:
+    name: TalantLoop Destek Ekibi
+    email: support@talantloop.com
+    url: https://api.talantloop.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.talantloop.com/v1
+    description: Production server
+  - url: https://staging-api.talantloop.com/v1
+    description: Staging server
+  - url: http://localhost:3000/v1
+    description: Development server
+
+tags:
+  - name: auth
+    description: Kimlik doğrulama işlemleri
+  - name: users
+    description: Kullanıcı profil işlemleri
+  - name: listings
+    description: İlan yönetimi işlemleri
+  - name: credits
+    description: Zaman kredisi işlemleri
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - auth
+      summary: Yeni kullanıcı kaydı
+      description: Sisteme yeni bir kullanıcı kaydeder
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+            examples:
+              example1:
+                summary: Örnek kullanıcı kaydı
+                value:
+                  username: ahmet_yilmaz
+                  email: ahmet@example.com
+                  password: Guvenli123!
+                  fullName: Ahmet Yılmaz
+                  skills:
+                    - Matematik
+                    - Programlama
+      responses:
+        '201':
+          description: Kullanıcı başarıyla oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email veya kullanıcı adı zaten kullanımda
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Kullanıcı girişi
+      description: Sisteme erişim yetkisi alır ve JWT token döner
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+            examples:
+              example1:
+                summary: Örnek giriş
+                value:
+                  email: ahmet@example.com
+                  password: Guvenli123!
+      responses:
+        '200':
+          description: Giriş başarılı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /users/{userId}:
+    put:
+      tags:
+        - users
+      summary: Profil bilgilerini güncelle
+      description: Kullanıcı adı veya yetkinlik bilgilerini günceller
+      operationId: updateUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Güncellenecek kullanıcının ID'si
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+            examples:
+              example1:
+                summary: Yetkinlik güncelleme
+                value:
+                  username: ahmet_yilmaz_v2
+                  skills:
+                    - Matematik
+                    - Python
+                    - Müzik
+      responses:
+        '200':
+          description: Profil başarıyla güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - users
+      summary: Profili sil
+      description: Kullanıcı üyeliğini sonlandırır ve hesabını siler
+      operationId: deleteUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Silinecek kullanıcının ID'si
+      responses:
+        '204':
+          description: Profil başarıyla silindi
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /listings:
+    get:
+      tags:
+        - listings
+      summary: İlanları listele
+      description: Mevcut tüm ilanları ana sayfada listeler
+      operationId: getListings
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Sayfa numarası
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: Sayfa başına ilan sayısı
+        - name: skill
+          in: query
+          schema:
+            type: string
+          description: Yetkinliğe göre filtrele (örn. Matematik)
+      responses:
+        '200':
+          description: İlanlar başarıyla listelendi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Listing'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+
+    post:
+      tags:
+        - listings
+      summary: Yeni ilan oluştur
+      description: '"1 saat ders verebilirim" gibi yeni bir hizmet ilanı açar'
+      operationId: createListing
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingCreate'
+            examples:
+              example1:
+                summary: Örnek ilan oluşturma
+                value:
+                  title: 1 saat Python dersi verebilirim
+                  description: Başlangıç seviyesinde Python programlama dersi
+                  skill: Python
+                  creditCost: 1
+                  durationMinutes: 60
+      responses:
+        '201':
+          description: İlan başarıyla oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /listings/{listingId}:
+    put:
+      tags:
+        - listings
+      summary: İlan güncelle
+      description: Açılan ilanın açıklamasını veya detaylarını değiştirir
+      operationId: updateListing
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Güncellenecek ilanın ID'si
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingUpdate'
+            examples:
+              example1:
+                summary: Açıklama güncelleme
+                value:
+                  description: İleri seviye Python dersi - veri bilimi odaklı
+                  creditCost: 2
+      responses:
+        '200':
+          description: İlan başarıyla güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - listings
+      summary: İlan sil
+      description: Verilen ilanı sistemden kalıcı olarak kaldırır
+      operationId: deleteListing
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Silinecek ilanın ID'si
+      responses:
+        '204':
+          description: İlan başarıyla silindi
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /credits/transfer:
+    post:
+      tags:
+        - credits
+      summary: Kredi transferi yap
+      description: İşlem bittiğinde 1 krediyi birinden diğerine aktarır
+      operationId: transferCredit
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditTransfer'
+            examples:
+              example1:
+                summary: Örnek kredi transferi
+                value:
+                  toUserId: user_456
+                  amount: 1
+                  listingId: listing_789
+                  note: Python dersi tamamlandı
+      responses:
+        '200':
+          description: Kredi transferi başarıyla gerçekleşti
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferResult'
+        '400':
+          description: Yetersiz kredi veya geçersiz işlem
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /credits/balance:
+    get:
+      tags:
+        - credits
+      summary: Bakiye sorgula
+      description: Kullanıcının kaç kredisi kaldığını görüntüler
+      operationId: getBalance
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Bakiye bilgisi başarıyla alındı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Balance'
+              examples:
+                example1:
+                  summary: Örnek bakiye
+                  value:
+                    userId: user_123
+                    balance: 5
+                    lastUpdated: '2026-03-06T14:00:00Z'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserRegistration:
+      type: object
+      required:
+        - username
+        - email
+        - password
+        - fullName
+      properties:
+        username:
+          type: string
+          example: ahmet_yilmaz
+        email:
+          type: string
+          format: email
+          example: ahmet@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: Guvenli123!
+        fullName:
+          type: string
+          example: Ahmet Yılmaz
+        skills:
+          type: array
+          items:
+            type: string
+          example:
+            - Matematik
+            - Programlama
+
+    UserLogin:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: ahmet@example.com
+        password:
+          type: string
+          format: password
+          example: Guvenli123!
+
+    UserUpdate:
+      type: object
+      properties:
+        username:
+          type: string
+          example: ahmet_yilmaz_v2
+        fullName:
+          type: string
+          example: Ahmet Yılmaz
+        skills:
+          type: array
+          items:
+            type: string
+          example:
+            - Matematik
+            - Python
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: user_123
+        username:
+          type: string
+          example: ahmet_yilmaz
+        email:
+          type: string
+          format: email
+          example: ahmet@example.com
+        fullName:
+          type: string
+          example: Ahmet Yılmaz
+        skills:
+          type: array
+          items:
+            type: string
+          example:
+            - Matematik
+            - Programlama
+        creditBalance:
+          type: integer
+          example: 5
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-01-15T10:00:00Z'
+
+    AuthToken:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        tokenType:
+          type: string
+          example: Bearer
+        expiresIn:
+          type: integer
+          description: Saniye cinsinden geçerlilik süresi
+          example: 86400
+        user:
+          $ref: '#/components/schemas/User'
+
+    ListingCreate:
+      type: object
+      required:
+        - title
+        - skill
+        - creditCost
+        - durationMinutes
+      properties:
+        title:
+          type: string
+          example: 1 saat Python dersi verebilirim
+        description:
+          type: string
+          example: Başlangıç seviyesinde Python programlama dersi
+        skill:
+          type: string
+          example: Python
+        creditCost:
+          type: integer
+          minimum: 1
+          example: 1
+        durationMinutes:
+          type: integer
+          example: 60
+
+    ListingUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          example: İleri Python dersi
+        description:
+          type: string
+          example: Veri bilimi odaklı ileri seviye Python
+        skill:
+          type: string
+          example: Python
+        creditCost:
+          type: integer
+          minimum: 1
+          example: 2
+        durationMinutes:
+          type: integer
+          example: 60
+
+    Listing:
+      type: object
+      properties:
+        id:
+          type: string
+          example: listing_789
+        title:
+          type: string
+          example: 1 saat Python dersi verebilirim
+        description:
+          type: string
+          example: Başlangıç seviyesinde Python programlama dersi
+        skill:
+          type: string
+          example: Python
+        creditCost:
+          type: integer
+          example: 1
+        durationMinutes:
+          type: integer
+          example: 60
+        owner:
+          $ref: '#/components/schemas/User'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-03-01T09:00:00Z'
+
+    CreditTransfer:
+      type: object
+      required:
+        - toUserId
+        - amount
+        - listingId
+      properties:
+        toUserId:
+          type: string
+          example: user_456
+        amount:
+          type: integer
+          minimum: 1
+          example: 1
+        listingId:
+          type: string
+          example: listing_789
+        note:
+          type: string
+          example: Python dersi tamamlandı
+
+    TransferResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        fromUserId:
+          type: string
+          example: user_123
+        toUserId:
+          type: string
+          example: user_456
+        amount:
+          type: integer
+          example: 1
+        newBalance:
+          type: integer
+          example: 4
+        transferredAt:
+          type: string
+          format: date-time
+          example: '2026-03-06T14:30:00Z'
+
+    Balance:
+      type: object
+      properties:
+        userId:
+          type: string
+          example: user_123
+        balance:
+          type: integer
+          example: 5
+        lastUpdated:
+          type: string
+          format: date-time
+          example: '2026-03-06T14:00:00Z'
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: Geçersiz istek parametreleri
+
+  responses:
+    BadRequest:
+      description: Geçersiz istek
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Kimlik doğrulama gerekli
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Kaynak bulunamadı
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
