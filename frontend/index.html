@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talantloop | Yetenek Paylaşım Platformu</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #6366f1;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --bg: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.8);
+        }
+
+        body { 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+            margin: 0;
+            color: #1e293b;
+        }
+
+        .container { 
+            width: 100%;
+            max-width: 500px; 
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 30px; 
+            border-radius: 24px; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        h2 { text-align: center; color: var(--primary); font-size: 28px; margin-bottom: 25px; letter-spacing: -1px; }
+        h3 { font-size: 18px; margin-top: 0; }
+
+        input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            margin: 8px 0; 
+            border-radius: 12px; 
+            border: 1px solid #e2e8f0; 
+            box-sizing: border-box;
+            transition: all 0.2s;
+            font-size: 15px;
+        }
+
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            margin: 10px 0; 
+            border-radius: 12px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--secondary); transform: translateY(-1px); }
+        
+        .btn-outline { background: #f1f5f9; color: #475569; }
+        .btn-outline:hover { background: #e2e8f0; }
+
+        .btn-danger { background: #fee2e2; color: var(--danger); font-size: 14px; }
+        .btn-danger:hover { background: #fecaca; }
+
+        #user-area { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 16px; 
+            margin-bottom: 20px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .balance-badge {
+            background: #dcfce7;
+            color: var(--success);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .user-card { 
+            background: white;
+            border-radius: 16px;
+            padding: 16px; 
+            margin-top: 12px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+        }
+
+        .user-card strong { color: #0f172a; font-size: 16px; }
+        .user-card p { margin: 4px 0; color: #64748b; font-size: 14px; }
+
+        .transfer-btn {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 8px;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        hr { border: 0; border-top: 1px solid #e2e8f0; margin: 25px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Talantloop</h2>
+        
+        <div id="auth-area">
+            <input type="email" id="email" placeholder="E-posta adresiniz">
+            <input type="password" id="password" placeholder="Şifreniz">
+            <button class="btn-primary" onclick="kayitOl()">Hemen Kayıt Ol</button>
+            <button class="btn-outline" onclick="girisYap()">Giriş Yap</button>
+        </div>
+        
+        <div id="user-area" style="display:none">
+            <h3 id="welcome"></h3>
+            <p>Mevcut Bakiyeniz: <span class="balance-badge"><span id="my-balance"></span> Puan</span></p>
+            <input type="text" id="ad-title" placeholder="Hangi konuda yardımcı olabilirsiniz?">
+            <button class="btn-primary" onclick="ilanVer()">İlanı Yayınla</button>
+            <button class="btn-danger" onclick="profilSil()">Hesabımı Kapat</button>
+        </div>
+
+        <hr>
+        <button class="btn-outline" onclick="yetenekleriGetir()">Keşfet: Tüm İlanlar ve Üyeler</button>
+        <div id="userList"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
