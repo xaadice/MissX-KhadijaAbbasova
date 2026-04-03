@@ -1,3 +1,5 @@
+const API = 'https://missx-khadijaabbasova.onrender.com';
+
 let currentUser = null;
 
 // 1) KAYIT OL
@@ -8,7 +10,7 @@ async function kayitOl() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    const res = await fetch('http://localhost:8080/api/register', {
+    const res = await fetch(`${API}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, skills: ["Genel"], balance: 5 })
@@ -19,7 +21,6 @@ async function kayitOl() {
     if (res.ok) {
         alert("Kayıt Başarılı! Şimdi Giriş Yapabilirsiniz.");
     } else {
-        // Backend'den gelen "Bu e-posta zaten kayıtlı" uyarısını gösterir
         alert(data.error || "Kayıt başarısız!");
     }
 }
@@ -28,7 +29,7 @@ async function kayitOl() {
 async function girisYap() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const res = await fetch('http://localhost:8080/api/login', {
+    const res = await fetch(`${API}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -38,7 +39,7 @@ async function girisYap() {
 
     if (res.ok) {
         currentUser = data;
-        currentUser.password = password; // Bakiye yenilemek için saklıyoruz
+        currentUser.password = password;
         
         document.getElementById('auth-area').style.display = 'none';
         document.getElementById('user-area').style.display = 'block';
@@ -56,7 +57,7 @@ async function ilanVer() {
     const title = document.getElementById('ad-title').value;
     if(!title) return alert("Lütfen bir ilan başlığı yazın!");
 
-    const res = await fetch(`http://localhost:8080/api/ads/${currentUser._id}`, {
+    const res = await fetch(`${API}/api/ads/${currentUser._id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, description: "Hizmet veriyorum" })
@@ -71,7 +72,7 @@ async function ilanVer() {
 
 // 4) KEŞFET: TÜM KULLANICILAR VE İLANLAR
 async function yetenekleriGetir() {
-    const res = await fetch('http://localhost:8080/api/users');
+    const res = await fetch(`${API}/api/users`);
     const users = await res.json();
     const listDiv = document.getElementById('userList');
     
@@ -119,7 +120,7 @@ async function yetenekleriGetir() {
 async function transfer(toId) {
     if(!currentUser) return alert("Lütfen önce giriş yapın!");
     
-    const res = await fetch('http://localhost:8080/api/transfer', {
+    const res = await fetch(`${API}/api/transfer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fromId: currentUser._id, toId })
@@ -130,8 +131,7 @@ async function transfer(toId) {
     if (res.ok) { 
         alert("Puan Transfer Edildi!"); 
         
-        // Kendi bakiyemizi anlık güncellemek için login servisini tekrar tetikliyoruz
-        const refresh = await fetch('http://localhost:8080/api/login', {
+        const refresh = await fetch(`${API}/api/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: currentUser.email, password: currentUser.password })
@@ -139,7 +139,7 @@ async function transfer(toId) {
 
         if(refresh.ok) {
             currentUser = await refresh.json();
-            currentUser.password = document.getElementById('password').value; // Şifreyi koru
+            currentUser.password = document.getElementById('password').value;
             document.getElementById('my-balance').innerText = currentUser.balance;
         }
         yetenekleriGetir(); 
@@ -151,7 +151,7 @@ async function transfer(toId) {
 // 6) PROFİL SİL
 async function profilSil() {
     if(confirm("Emin misiniz? Hesabınız kalıcı olarak silinecektir.")) {
-        const res = await fetch(`http://localhost:8080/api/users/${currentUser._id}`, { method: 'DELETE' });
+        const res = await fetch(`${API}/api/users/${currentUser._id}`, { method: 'DELETE' });
         if(res.ok) {
             alert("Hesabınız silindi.");
             location.reload();
