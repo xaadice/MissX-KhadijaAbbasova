@@ -33,8 +33,8 @@
             backdrop-filter: blur(10px);
             padding: 30px; 
             border-radius: 24px; 
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            border: 1px solid rgba(255,255,255,0.5);
         }
 
         h2 { text-align: center; color: var(--primary); font-size: 28px; margin-bottom: 25px; letter-spacing: -1px; }
@@ -51,7 +51,7 @@
             font-size: 15px;
         }
 
-        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
 
         button { 
             width: 100%; 
@@ -67,12 +67,12 @@
 
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--secondary); transform: translateY(-1px); }
-        
         .btn-outline { background: #f1f5f9; color: #475569; }
         .btn-outline:hover { background: #e2e8f0; }
-
         .btn-danger { background: #fee2e2; color: var(--danger); font-size: 14px; }
         .btn-danger:hover { background: #fecaca; }
+        .btn-warning { background: #fef9c3; color: #ca8a04; font-size: 14px; }
+        .btn-warning:hover { background: #fef08a; }
 
         #user-area { 
             background: white; 
@@ -99,43 +99,98 @@
             border: 1px solid #f1f5f9;
         }
 
-        .user-card strong { color: #0f172a; font-size: 16px; }
-        .user-card p { margin: 4px 0; color: #64748b; font-size: 14px; }
+        hr { border: 0; border-top: 1px solid #e2e8f0; margin: 25px 0; }
 
-        .transfer-btn {
-            background: #eff6ff;
-            color: #2563eb;
-            padding: 8px;
-            font-size: 13px;
-            margin-top: 8px;
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
         }
 
-        hr { border: 0; border-top: 1px solid #e2e8f0; margin: 25px 0; }
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: white;
+            padding: 28px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+
+        .modal h4 { margin-top: 0; color: var(--primary); font-size: 18px; }
+
+        .modal-buttons { display: flex; gap: 10px; margin-top: 16px; }
+        .modal-buttons button { margin: 0; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Talantloop</h2>
-        
-        <div id="auth-area">
-            <input type="email" id="email" placeholder="E-posta adresiniz">
-            <input type="password" id="password" placeholder="Şifreniz">
-            <button class="btn-primary" onclick="kayitOl()">Hemen Kayıt Ol</button>
-            <button class="btn-outline" onclick="girisYap()">Giriş Yap</button>
-        </div>
-        
-        <div id="user-area" style="display:none">
-            <h3 id="welcome"></h3>
-            <p>Mevcut Bakiyeniz: <span class="balance-badge"><span id="my-balance"></span> Puan</span></p>
-            <input type="text" id="ad-title" placeholder="Hangi konuda yardımcı olabilirsiniz?">
-            <button class="btn-primary" onclick="ilanVer()">İlanı Yayınla</button>
-            <button class="btn-danger" onclick="profilSil()">Hesabımı Kapat</button>
-        </div>
+<div class="container">
+    <h2>Talantloop</h2>
 
-        <hr>
-        <button class="btn-outline" onclick="yetenekleriGetir()">Keşfet: Tüm İlanlar ve Üyeler</button>
-        <div id="userList"></div>
+    <!-- GİRİŞ ALANI -->
+    <div id="auth-area">
+        <input type="email" id="email" placeholder="E-posta adresiniz">
+        <input type="password" id="password" placeholder="Şifreniz">
+        <button class="btn-primary" onclick="kayitOl()">Hemen Kayıt Ol</button>
+        <button class="btn-outline" onclick="girisYap()">Giriş Yap</button>
     </div>
-    <script src="script.js"></script>
+
+    <!-- KULLANICI ALANI -->
+    <div id="user-area" style="display:none">
+        <h3 id="welcome"></h3>
+        <p>Mevcut Bakiyeniz: <span class="balance-badge"><span id="my-balance"></span> Puan</span>
+           <button onclick="bakiyeSorgula()" style="width:auto; padding:4px 12px; font-size:12px; margin-left:8px; background:#e0e7ff; color:#4f46e5; border-radius:8px; border:none; cursor:pointer; font-weight:600;">🔄 Yenile</button>
+        </p>
+
+        <!-- İLAN YAYINLA -->
+        <input type="text" id="ad-title" placeholder="Hangi konuda yardımcı olabilirsiniz?">
+        <button class="btn-primary" onclick="ilanVer()">İlanı Yayınla</button>
+
+        <!-- PROFİL GÜNCELLE -->
+        <button class="btn-warning" onclick="profilGuncelleModal()">✏️ Profili Güncelle</button>
+
+        <!-- HESAP KAPAT -->
+        <button class="btn-danger" onclick="profilSil()">Hesabımı Kapat</button>
+    </div>
+
+    <hr>
+    <button class="btn-outline" onclick="yetenekleriGetir()">Keşfet: Tüm İlanlar ve Üyeler</button>
+    <div id="userList"></div>
+</div>
+
+<!-- PROFİL GÜNCELLE MODAL -->
+<div class="modal-overlay" id="profilModal">
+    <div class="modal">
+        <h4>✏️ Profili Güncelle</h4>
+        <input type="text" id="new-name" placeholder="Yeni ad soyad">
+        <input type="text" id="new-skills" placeholder="Yetenekler (virgülle ayırın)">
+        <div class="modal-buttons">
+            <button class="btn-primary" onclick="profilGuncelle()">Kaydet</button>
+            <button class="btn-outline" onclick="modalKapat('profilModal')">İptal</button>
+        </div>
+    </div>
+</div>
+
+<!-- İLAN GÜNCELLE MODAL -->
+<div class="modal-overlay" id="ilanModal">
+    <div class="modal">
+        <h4>✏️ İlanı Güncelle</h4>
+        <input type="text" id="edit-ad-title" placeholder="Yeni ilan başlığı">
+        <input type="text" id="edit-ad-description" placeholder="Yeni açıklama">
+        <input type="hidden" id="edit-ad-id">
+        <div class="modal-buttons">
+            <button class="btn-primary" onclick="ilanGuncelle()">Kaydet</button>
+            <button class="btn-outline" onclick="modalKapat('ilanModal')">İptal</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
