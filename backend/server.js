@@ -41,17 +41,33 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// 3️⃣ TÜM KULLANICILARI LİSTELE
-app.get('/api/users', async (req, res) => {
+// 3️⃣ PROFİL BİLGİLERİNİ GÜNCELLE
+app.put('/api/users/:id', async (req, res) => {
     try {
-        const users = await User.find();
-        res.json(users);
+        const { name, skills } = req.body;
+        const u = await User.findByIdAndUpdate(
+            req.params.id,
+            { name, skills },
+            { new: true }
+        );
+        if (!u) return res.status(404).json({ error: "Kullanıcı bulunamadı." });
+        res.json(u);
     } catch (err) {
-        res.status(500).json({ error: "Kullanıcılar getirilemedi." });
+        res.status(400).json({ error: "Profil güncellenirken hata oluştu: " + err.message });
     }
 });
 
-// 4️⃣ İLAN YAYINLA
+// 4️⃣ PROFİL SİL
+app.delete('/api/users/:id', async (req, res) => {
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ message: "Hesap silindi." });
+    } catch (err) {
+        res.status(500).json({ error: "Silme işlemi başarısız." });
+    }
+});
+
+// 5️⃣ YENİ İLAN OLUŞTUR
 app.post('/api/ads/:userId', async (req, res) => {
     try {
         const u = await User.findById(req.params.userId);
@@ -64,7 +80,50 @@ app.post('/api/ads/:userId', async (req, res) => {
     }
 });
 
-// 5️⃣ PUAN TRANSFERİ
+// 6️⃣ İLANLARI LİSTELE (TÜM KULLANICILAR)
+app.get('/api/users', async (req, res) => {
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ error: "Kullanıcılar getirilemedi." });
+    }
+});
+
+// 7️⃣ İLAN GÜNCELLE
+app.put('/api/ads/:userId/:adId', async (req, res) => {
+    try {
+        const u = await User.findById(req.params.userId);
+        if (!u) return res.status(404).json({ error: "Kullanıcı bulunamadı." });
+
+        const ad = u.ads.id(req.params.adId);
+        if (!ad) return res.status(404).json({ error: "İlan bulunamadı." });
+
+        if (req.body.title) ad.title = req.body.title;
+        if (req.body.description) ad.description = req.body.description;
+
+        await u.save();
+        res.json(u);
+    } catch (err) {
+        res.status(400).json({ error: "İlan güncellenirken hata oluştu: " + err.message });
+    }
+});
+
+// 8️⃣ İLAN SİL
+app.delete('/api/ads/:userId/:adId', async (req, res) => {
+    try {
+        const u = await User.findById(req.params.userId);
+        if (!u) return res.status(404).json({ error: "Kullanıcı bulunamadı." });
+
+        u.ads = u.ads.filter(ad => ad._id.toString() !== req.params.adId);
+        await u.save();
+        res.json({ message: "İlan silindi.", user: u });
+    } catch (err) {
+        res.status(500).json({ error: "İlan silinirken hata oluştu." });
+    }
+});
+
+// 9️⃣ KREDİ TRANSFERİ YAP
 app.post('/api/transfer', async (req, res) => {
     try {
         const { fromId, toId } = req.body;
@@ -85,13 +144,14 @@ app.post('/api/transfer', async (req, res) => {
     }
 });
 
-// 6️⃣ PROFİL SİL
-app.delete('/api/users/:id', async (req, res) => {
+// 🔟 BAKİYE SORGULA
+app.get('/api/users/:id/balance', async (req, res) => {
     try {
-        await User.findByIdAndDelete(req.params.id);
-        res.json({ message: "Hesap silindi." });
+        const u = await User.findById(req.params.id);
+        if (!u) return res.status(404).json({ error: "Kullanıcı bulunamadı." });
+        res.json({ userId: u._id, name: u.name, balance: u.balance });
     } catch (err) {
-        res.status(500).json({ error: "Silme işlemi başarısız." });
+        res.status(500).json({ error: "Bakiye sorgulanamadı." });
     }
 });
 
