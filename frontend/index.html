@@ -161,6 +161,8 @@
 
     <hr>
     <button class="btn-outline" onclick="yetenekleriGetir()">Keşfet: Tüm İlanlar ve Üyeler</button>
+
+    <!-- userList: event listener burada tek seferlik tanımlanıyor -->
     <div id="userList"></div>
 </div>
 
@@ -191,6 +193,24 @@
     </div>
 </div>
 
+<script>
+    // userList event listener — sadece bir kez eklenir, sayfa yüklenmesinde
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('userList').addEventListener('click', (e) => {
+            const silBtn = e.target.closest('.btn-ilan-sil');
+            const guncBtn = e.target.closest('.btn-ilan-guncelle');
+            const transferBtn = e.target.closest('.btn-transfer');
+
+            if (silBtn) ilanSil(silBtn.dataset.id);
+            if (guncBtn) ilanGuncelleModal(
+                guncBtn.dataset.id,
+                decodeURIComponent(guncBtn.dataset.title),
+                decodeURIComponent(guncBtn.dataset.desc)
+            );
+            if (transferBtn) transfer(transferBtn.dataset.id);
+        });
+    });
+</script>
 <script src="script.js"></script>
 </body>
 </html>

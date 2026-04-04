@@ -18,17 +18,20 @@ async function kayitOl() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    const res = await fetch(`${API}/api/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, skills: ["Genel"], balance: 5 })
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-        alert("Kayıt Başarılı! Şimdi Giriş Yapabilirsiniz.");
-    } else {
-        alert(data.error || "Kayıt başarısız!");
+    try {
+        const res = await fetch(`${API}/api/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password, skills: ["Genel"], balance: 5 })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert("Kayıt Başarılı! Şimdi Giriş Yapabilirsiniz.");
+        } else {
+            alert(data.error || "Kayıt başarısız!");
+        }
+    } catch (err) {
+        alert("Bağlantı hatası: " + err.message);
     }
 }
 
@@ -37,24 +40,27 @@ async function girisYap() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    const res = await fetch(`${API}/api/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-    });
+    try {
+        const res = await fetch(`${API}/api/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            currentUser = data;
+            currentUser.password = password;
 
-    const data = await res.json();
-    if (res.ok) {
-        currentUser = data;
-        currentUser.password = password;
-
-        document.getElementById('auth-area').style.display = 'none';
-        document.getElementById('user-area').style.display = 'block';
-        document.getElementById('welcome').innerText = "Hoş geldin, " + currentUser.name;
-        document.getElementById('my-balance').innerText = currentUser.balance;
-        yetenekleriGetir();
-    } else {
-        alert(data.error || "Giriş Başarısız!");
+            document.getElementById('auth-area').style.display = 'none';
+            document.getElementById('user-area').style.display = 'block';
+            document.getElementById('welcome').innerText = "Hoş geldin, " + currentUser.name;
+            document.getElementById('my-balance').innerText = currentUser.balance;
+            yetenekleriGetir();
+        } else {
+            alert(data.error || "Giriş Başarısız!");
+        }
+    } catch (err) {
+        alert("Bağlantı hatası: " + err.message);
     }
 }
 
@@ -73,32 +79,43 @@ async function profilGuncelle() {
 
     if (!name) return alert("İsim boş olamaz!");
 
-    const res = await fetch(`${API}/api/users/${currentUser._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, skills })
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-        currentUser = { ...data, password: currentUser.password };
-        document.getElementById('welcome').innerText = "Hoş geldin, " + currentUser.name;
-        modalKapat('profilModal');
-        alert("Profil güncellendi!");
-        yetenekleriGetir();
-    } else {
-        alert(data.error || "Güncelleme başarısız!");
+    try {
+        const res = await fetch(`${API}/api/users/${currentUser._id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, skills })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            currentUser = { ...data, password: currentUser.password };
+            document.getElementById('welcome').innerText = "Hoş geldin, " + currentUser.name;
+            modalKapat('profilModal');
+            alert("Profil güncellendi!");
+            yetenekleriGetir();
+        } else {
+            alert(data.error || "Güncelleme başarısız!");
+        }
+    } catch (err) {
+        alert("Bağlantı hatası: " + err.message);
     }
 }
 
 // 4) PROFİL SİL ───────────────────────────────────────────────────────────────
 async function profilSil() {
-    if (confirm("Emin misiniz? Hesabınız kalıcı olarak silinecektir.")) {
+    if (!confirm("Emin misiniz? Hesabınız kalıcı olarak silinecektir.")) return;
+
+    try {
         const res = await fetch(`${API}/api/users/${currentUser._id}`, { method: 'DELETE' });
         if (res.ok) {
             alert("Hesabınız silindi.");
             location.reload();
+        } else {
+            let msg = "Silme başarısız!";
+            try { const d = await res.json(); msg = d.error || msg; } catch (_) {}
+            alert(msg);
         }
+    } catch (err) {
+        alert("Bağlantı hatası: " + err.message);
     }
 }
 
@@ -108,83 +125,127 @@ async function ilanVer() {
     const title = document.getElementById('ad-title').value;
     if (!title) return alert("Lütfen bir ilan başlığı yazın!");
 
-    const res = await fetch(`${API}/api/ads/${currentUser._id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description: "Hizmet veriyorum" })
-    });
-
-    if (res.ok) {
-        alert("İlan Yayınlandı!");
-        document.getElementById('ad-title').value = "";
-        yetenekleriGetir();
+    try {
+        const res = await fetch(`${API}/api/ads/${currentUser._id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, description: "Hizmet veriyorum" })
+        });
+        if (res.ok) {
+            alert("İlan Yayınlandı!");
+            document.getElementById('ad-title').value = "";
+            yetenekleriGetir();
+        } else {
+            let msg = "İlan yayınlanamadı!";
+            try { const d = await res.json(); msg = d.error || msg; } catch (_) {}
+            alert(msg);
+        }
+    } catch (err) {
+        alert("Bağlantı hatası: " + err.message);
     }
 }
 
 // 6) İLANLARI LİSTELE ─────────────────────────────────────────────────────────
 async function yetenekleriGetir() {
-    const res = await fetch(`${API}/api/users`);
-    const users = await res.json();
-    const listDiv = document.getElementById('userList');
+    try {
+        const res = await fetch(`${API}/api/users`);
+        const users = await res.json();
+        const listDiv = document.getElementById('userList');
 
-    listDiv.innerHTML = users.map(user => {
-        const isMe = currentUser && currentUser._id === user._id;
+        listDiv.innerHTML = users.map(user => {
+            const isMe = currentUser && currentUser._id === user._id;
 
-        const ilanlarHTML = user.ads.length > 0
-            ? user.ads.map(ad => `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:10px; margin:6px 0;">
-                    <span style="font-size:13px; color:#334155;">📌 ${ad.title}</span>
-                    ${isMe ? `
-                        <div style="display:flex; gap:6px;">
-                            <button onclick="ilanGuncelleModal('${ad._id}','${ad.title}','${ad.description || ''}')"
-                                style="background:#e0e7ff; color:#4f46e5; border:none; padding:4px 10px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600;">
-                                ✏️
-                            </button>
-                            <button onclick="ilanSil('${ad._id}')"
-                                style="background:#fee2e2; color:#ef4444; border:none; padding:4px 10px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600;">
-                                🗑️
-                            </button>
-                        </div>
-                    ` : ''}
+            const ilanlarHTML = user.ads && user.ads.length > 0
+                ? user.ads.map(ad => `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:10px; margin:6px 0;">
+                        <span style="font-size:13px; color:#334155;">📌 ${ad.title}</span>
+                        ${isMe ? `
+                            <div style="display:flex; gap:6px;">
+                                <button
+                                    class="btn-ilan-guncelle"
+                                    data-id="${ad._id}"
+                                    data-title="${encodeURIComponent(ad.title)}"
+                                    data-desc="${encodeURIComponent(ad.description || '')}"
+                                    style="background:#e0e7ff; color:#4f46e5; border:none; padding:4px 10px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600;">
+                                    ✏️
+                                </button>
+                                <button
+                                    class="btn-ilan-sil"
+                                    data-id="${ad._id}"
+                                    style="background:#fee2e2; color:#ef4444; border:none; padding:4px 10px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600;">
+                                    🗑️
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('')
+                : '<p style="color:#94a3b8; font-size:13px; margin:6px 0;">Henüz ilan yok</p>';
+
+            return `
+            <div class="user-card" style="border:1px solid #e2e8f0; padding:20px; margin-top:15px; border-radius:16px; background:white; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <strong style="font-size:17px; color:#1e293b;">${user.name}</strong>
+                    <span style="font-size:13px; background:#dcfce7; color:#22c55e; padding:4px 12px; border-radius:20px; font-weight:bold;">
+                        ${user.balance} Puan
+                    </span>
                 </div>
-            `).join('')
-            : '<p style="color:#94a3b8; font-size:13px; margin:6px 0;">Henüz ilan yok</p>';
 
-        return `
-        <div class="user-card" style="border:1px solid #e2e8f0; padding:20px; margin-top:15px; border-radius:16px; background:white; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <strong style="font-size:17px; color:#1e293b;">${user.name}</strong>
-                <span style="font-size:13px; background:#dcfce7; color:#22c55e; padding:4px 12px; border-radius:20px; font-weight:bold;">
-                    ${user.balance} Puan
-                </span>
-            </div>
+                <p style="margin:4px 0; color:#64748b; font-size:13px;">🎯 <strong>Yetenekler:</strong> ${(user.skills || []).join(', ') || '-'}</p>
 
-            <p style="margin:4px 0; color:#64748b; font-size:13px;">🎯 <strong>Yetenekler:</strong> ${(user.skills || []).join(', ') || '-'}</p>
-
-            <div style="margin:10px 0;">
-                <p style="font-size:13px; font-weight:600; color:#475569; margin-bottom:4px;">🔍 İlanlar:</p>
-                ${ilanlarHTML}
-            </div>
-
-            <div style="margin-top:12px; padding-top:12px; border-top:1px solid #f1f5f9;">
-                <p style="margin-bottom:10px; font-size:13px; color:#475569;">📧 <strong>E-posta:</strong> ${user.email}</p>
-                <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                    ${!isMe ? `
-                        <a href="mailto:${user.email}?subject=TalentLoop İş Birliği Teklifi"
-                           style="background:#22c55e; color:white; padding:8px 14px; text-decoration:none; border-radius:10px; font-size:13px; font-weight:600; display:inline-flex; align-items:center;">
-                           ✉️ Mesaj Gönder
-                        </a>
-                        <button onclick="transfer('${user._id}')"
-                           style="background:#4f46e5; color:white; border:none; padding:8px 14px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:600;">
-                           💸 1 Puan Gönder
-                        </button>
-                    ` : `
-                        <span style="color:#94a3b8; font-size:13px; font-style:italic; padding:8px 0;">✨ Bu sizin profiliniz</span>
-                    `}
+                <div style="margin:10px 0;">
+                    <p style="font-size:13px; font-weight:600; color:#475569; margin-bottom:4px;">🔍 İlanlar:</p>
+                    ${ilanlarHTML}
                 </div>
-            </div>
-        </div>`;
-    }).join('');
+
+                <div style="margin-top:12px; padding-top:12px; border-top:1px solid #f1f5f9;">
+                    <p style="margin-bottom:10px; font-size:13px; color:#475569;">📧 <strong>E-posta:</strong> ${user.email}</p>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        ${!isMe ? `
+                            <a href="mailto:${user.email}?subject=TalentLoop İş Birliği Teklifi"
+                               style="background:#22c55e; color:white; padding:8px 14px; text-decoration:none; border-radius:10px; font-size:13px; font-weight:600; display:inline-flex; align-items:center;">
+                               ✉️ Mesaj Gönder
+                            </a>
+                            <button
+                                class="btn-transfer"
+                                data-id="${user._id}"
+                                style="background:#4f46e5; color:white; border:none; padding:8px 14px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:600;">
+                                💸 1 Puan Gönder
+                            </button>
+                        ` : `
+                            <span style="color:#94a3b8; font-size:13px; font-style:italic; padding:8px 0;">✨ Bu sizin profiliniz</span>
+                        `}
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+
+        // ── Event Delegation: onclick yerine güvenli dinleyici ────────────────
+        listDiv.addEventListener('click', handleListClick);
+
+    } catch (err) {
+        alert("Kullanıcılar getirilemedi: " + err.message);
+    }
+}
+
+// Event delegation handler — birden fazla eklenmesini önlemek için named function
+function handleListClick(e) {
+    const silBtn = e.target.closest('.btn-ilan-sil');
+    const guncBtn = e.target.closest('.btn-ilan-guncelle');
+    const transferBtn = e.target.closest('.btn-transfer');
+
+    if (silBtn) {
+        ilanSil(silBtn.dataset.id);
+    }
+    if (guncBtn) {
+        ilanGuncelleModal(
+            guncBtn.dataset.id,
+            decodeURIComponent(guncBtn.dataset.title),
+            decodeURIComponent(guncBtn.dataset.desc)
+        );
+    }
+    if (transferBtn) {
+        transfer(transferBtn.dataset.id);
+    }
 }
 
 // 7) İLAN GÜNCELLE MODAL AÇ ───────────────────────────────────────────────────
@@ -203,19 +264,23 @@ async function ilanGuncelle() {
 
     if (!title) return alert("Başlık boş olamaz!");
 
-    const res = await fetch(`${API}/api/ads/${currentUser._id}/${adId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description })
-    });
-
-    if (res.ok) {
-        modalKapat('ilanModal');
-        alert("İlan güncellendi!");
-        yetenekleriGetir();
-    } else {
-        const data = await res.json();
-        alert(data.error || "Güncelleme başarısız!");
+    try {
+        const res = await fetch(`${API}/api/ads/${currentUser._id}/${adId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, description })
+        });
+        if (res.ok) {
+            modalKapat('ilanModal');
+            alert("İlan güncellendi!");
+            yetenekleriGetir();
+        } else {
+            let msg = "Güncelleme başarısız!";
+            try { const d = await res.json(); msg = d.error || msg; } catch (_) {}
+            alert(msg);
+        }
+    } catch (err) {
+        alert("Bağlantı hatası: " + err.message);
     }
 }
 
@@ -223,16 +288,20 @@ async function ilanGuncelle() {
 async function ilanSil(adId) {
     if (!confirm("Bu ilanı silmek istediğinize emin misiniz?")) return;
 
-    const res = await fetch(`${API}/api/ads/${currentUser._id}/${adId}`, {
-        method: 'DELETE'
-    });
-
-    if (res.ok) {
-        alert("İlan silindi!");
-        yetenekleriGetir();
-    } else {
-        const data = await res.json();
-        alert(data.error || "Silme başarısız!");
+    try {
+        const res = await fetch(`${API}/api/ads/${currentUser._id}/${adId}`, {
+            method: 'DELETE'
+        });
+        if (res.ok) {
+            alert("İlan silindi!");
+            yetenekleriGetir();
+        } else {
+            let msg = "Silme başarısız!";
+            try { const d = await res.json(); msg = d.error || msg; } catch (_) {}
+            alert(msg);
+        }
+    } catch (err) {
+        alert("Bağlantı hatası: " + err.message);
     }
 }
 
@@ -240,19 +309,22 @@ async function ilanSil(adId) {
 async function transfer(toId) {
     if (!currentUser) return alert("Lütfen önce giriş yapın!");
 
-    const res = await fetch(`${API}/api/transfer`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fromId: currentUser._id, toId })
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-        alert("Puan Transfer Edildi!");
-        await bakiyeSorgula();
-        yetenekleriGetir();
-    } else {
-        alert(data.error || "Transfer başarısız!");
+    try {
+        const res = await fetch(`${API}/api/transfer`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fromId: currentUser._id, toId })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert("Puan Transfer Edildi!");
+            await bakiyeSorgula();
+            yetenekleriGetir();
+        } else {
+            alert(data.error || "Transfer başarısız!");
+        }
+    } catch (err) {
+        alert("Bağlantı hatası: " + err.message);
     }
 }
 
@@ -260,10 +332,18 @@ async function transfer(toId) {
 async function bakiyeSorgula() {
     if (!currentUser) return;
 
-    const res = await fetch(`${API}/api/users/${currentUser._id}/balance`);
-    if (res.ok) {
-        const data = await res.json();
-        currentUser.balance = data.balance;
-        document.getElementById('my-balance').innerText = data.balance;
+    try {
+        const res = await fetch(`${API}/api/users/${currentUser._id}/balance`);
+        if (res.ok) {
+            const data = await res.json();
+            currentUser.balance = data.balance;
+            document.getElementById('my-balance').innerText = data.balance;
+        } else {
+            let msg = "Bakiye sorgulanamadı!";
+            try { const d = await res.json(); msg = d.error || msg; } catch (_) {}
+            alert(msg);
+        }
+    } catch (err) {
+        alert("Bağlantı hatası: " + err.message);
     }
 }
