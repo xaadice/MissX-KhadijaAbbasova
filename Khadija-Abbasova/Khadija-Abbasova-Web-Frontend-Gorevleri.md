@@ -1,6 +1,6 @@
 # Khadija Abbasova'nın Web Frontend Görevleri
 
-**Web Frontend Adresi:** [frontend.yazmuh.com](https://frontend.yazmuh.com)
+**Web Frontend Adresi:**https://miss-x.vercel.app  
 
 Bu dokümanda, TalantLoop web uygulamasının kullanıcı arayüzü (UI) ve kullanıcı deneyimi (UX) görevleri listelenmektedir. Hatice Abbasova, tüm sayfaların tasarımı, implementasyonu ve kullanıcı etkileşimlerinden sorumludur.
 
